@@ -1,0 +1,468 @@
+<template>
+  <div class="regist">
+    <div class="login">
+      <div class="header_one">
+        <div class="header_content">
+          <a title="网上厨房" href="#"
+            ><img
+              src="https://www.ecook.cn/resources/v3/images/ecook_logo.png"
+              class="login_header_img"
+          /></a>
+          <a class="header_logo_info" href="#">
+            <span class="font24 color333 logo_text">网上厨房</span>
+          </a>
+        </div>
+      </div>
+      <div class="body">
+        <div class="img">
+          <img
+            src="https://www.ecook.cn/resources/v3/images/ecook.png"
+            alt=""
+          />
+        </div>
+        <div class="loging">
+          <div class="loging-top">
+            <span class="font18 color1b">新用户注册</span>
+            <router-link to="/login" class="font14 colorfaa928 fr"
+              >已有账号，直接登录></router-link
+            >
+          </div>
+          <!--账号密码登陆-->
+          <div class="register-center">
+            <div class="centinpt">
+              <input
+                class="register-input"
+                id="tel_input"
+                type="number"
+                placeholder="请输入手机号码"
+                v-model="username"
+              />
+              <p class="register-text" :class="[{ active: num == 1 }]">
+                {{ txt }}
+              </p>
+            </div>
+            <div class="centinpt centinpt-name">
+              <input
+                class="register-input"
+                id="title_input"
+                type="text"
+                placeholder="请输入昵称"
+                v-model="name"
+              />
+              <p class="iisi register-text" :class="[{ active: num1 == 1 }]">
+                {{ txt1 }}
+              </p>
+              <span class="register-tip" id="title_tip" style="display: none"
+                >*和别人重名了哦,可以考虑昵称后面加数字</span
+              >
+            </div>
+            <div class="centinpt">
+              <input
+                class="register-input"
+                id="pass1_input"
+                type="password"
+                placeholder="请输入密码"
+                v-model="password"
+              />
+            </div>
+            <div class="centinpt">
+              <input
+                class="register-input"
+                id="pass2_input"
+                type="password"
+                placeholder="请再次输入密码"
+                v-model="password1"
+              />
+              <p
+                class="iisi register-text"
+                v-show="bol"
+                :class="[{ active: num2 == 1 }]"
+              >
+                *两次密码输入不一致
+              </p>
+            </div>
+          </div>
+          <div class="agree" style="display: none">
+            <input
+              name="Fruit"
+              type="checkbox"
+              value="off"
+              id="checkbox-1-1"
+              class="regular-checkbox"
+            />
+            <label id="agree_check" for="checkbox-1-1"></label
+            >&nbsp;&nbsp;我已阅读且同意<a
+              href="/useragreement"
+              class="register-user"
+              >网上厨房用户协议</a
+            >
+          </div>
+        </div>
+        <button class="zhuce" @click="zhuce()">注册</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Regist",
+  data() {
+    return {
+      username: "",
+      name: "",
+      password: "",
+      password1: "",
+      txt: "输入常用的手机号，便于登录和找回密码",
+      txt1: "昵称长度不超过8个字符,只允许使用汉字、字母、数字",
+      txt2: "*两次密码输入不一致",
+      num: 0,
+      num1: 0,
+      num2: 0,
+      arrs: [],
+      bol: false,
+    };
+  },
+  mounted() {
+    if (this.$route.fullPath == "/regist" || this.$route.fullPath == "/login") {
+      document.querySelector(".header").style.display = "none";
+    } else {
+      document.querySelector(".header").style.display = "block";
+    }
+  },
+  methods: {
+    zhuce() {
+      this.axios
+        .get("http://localhost:3000/regist_in")
+        .then((res) => {
+          this.arrs = res.data;
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      if (!this.username.match(/^1[358]\d{9}$/)) {
+        this.txt = "手机号格式不正确";
+        this.num = 1;
+        setTimeout(()=>{
+         this.num=0
+         this.txt='输入常用的手机号，便于登录和找回密码'
+      },3000)
+     
+      }
+      if (this.username == null||this.name==null) {
+        this.txt = "手机号不能为空";
+        this.txt1 = "昵称不能为空哦";
+         this.num = 1;
+         this.num1=1
+        setTimeout(()=>{
+         this.num=0
+         this.num1=0
+         this.txt='输入常用的手机号，便于登录和找回密码'
+         this.txt1='昵称长度不超过8个字符,只允许使用汉字、字母、数字'
+      },3000)
+      }
+      for (var i = 0; i < this.arrs.length; i++) {
+        console.log(this.name);
+        if (this.arrs[i].name == this.name) {
+          this.txt1 = "*和别人重名了哦,可以考虑昵称后面加数字";
+          this.num1 = 1;
+        setTimeout(()=>{
+         this.num1=0
+         this.txt1='昵称长度不超过8个字符,只允许使用汉字、字母、数字'
+      },3000)
+        }
+      }
+      if (this.pasword !== this.password1) {
+        this.num2 = 1;
+        this.bol = true;
+          setTimeout(()=>{
+         this.num2=0
+      },3000)
+      } 
+      else {
+        this.axios
+          .get(
+            "http://localhost:3000/regist?tel=" +
+              this.username +
+              "&name=" +
+              this.name +
+              "&password=" +
+              this.password
+          )
+          .then((res) => {
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        this.$router.push("/login");
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.active {
+  color: red !important;
+}
+.login {
+  width: 100%;
+  height: 100%;
+  min-height: 15rem;
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 250, 1) 0%,
+    rgba(237, 236, 235, 1) 100%
+  );
+  position: relative;
+}
+.header {
+  width: 100%;
+  height: 1.2rem;
+  line-height: 1.2rem;
+  position: relative;
+  background: #ffffff;
+  top: 0;
+}
+.header_content {
+  width: 750px;
+  height: 100%;
+  margin: auto;
+  text-align: left;
+  padding: 0.2rem 0.2rem;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+a {
+  display: inline-block;
+  width: auto;
+  height: 100%;
+}
+.login_header_img {
+  width: 0.64rem;
+  height: 0.64rem;
+  vertical-align: middle;
+  display: inline-block;
+}
+.login_header_img {
+  width: 0.64rem;
+  height: 0.64rem;
+}
+.header_logo_info {
+  display: inline-block;
+  margin-left: 0.06rem;
+  height: 0.64rem;
+  /* line-height: 3; */
+  vertical-align: middle;
+  position: relative;
+}
+.font24 {
+  font-size: 24px;
+}
+.color333 {
+  color: #333333 !important;
+}
+.logo_text {
+  /* position: absolute;
+    top: 0.05rem; */
+  line-height: 0.5rem;
+  display: inline-block;
+}
+.prb10 {
+  position: relative;
+  bottom: 0.1rem;
+}
+.font14 {
+  font-size: 14px;
+  line-height: 0.19rem;
+}
+.body {
+  position: relative;
+  width: 100%;
+}
+.img {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.3rem;
+  width: 50%;
+  height: 1.25rem;
+}
+.img img {
+  width: 100%;
+  height: 1.25rem;
+}
+.loging {
+  width: 90%;
+  background-color: #fff;
+  top: 1.9rem;
+  height: 11rem;
+  left: 0.3rem;
+  position: absolute;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  text-align: left;
+}
+.loging-top {
+  padding-top: 23px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f7f7f7;
+  margin-bottom: 33px;
+}
+.font18 {
+  font-size: 18px;
+}
+.color1b {
+  color: #1b1b1b;
+}
+.fr {
+  float: right;
+}
+.colorfaa928 {
+  color: #faa928;
+}
+.loging_account {
+  display: block;
+}
+.loging_account_p {
+  width: 100%;
+  height: 48px;
+  line-height: 55px;
+  border-bottom: 1px solid #dddddd;
+}
+.loging_submit {
+  width: 100%;
+  height: 50px;
+  background: rgba(255, 192, 0, 1);
+  border-radius: 4px;
+  color: #63420f;
+  font-size: 18px;
+  text-align: center;
+  line-height: 50px;
+  margin: auto;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  border: none;
+}
+.loging_account_input {
+  /* width: calc(100% - 0.5rem);
+    width: -webkit-calc(100% - 0.5rem);
+    width: -moz-calc(100% - 0.5rem); */
+  /* float: right; */
+  /* height: 0.2rem; */
+  border: none;
+  outline: none;
+  color: #999999;
+  font-size: 12px;
+  padding-left: 0.5rem;
+  /* position: relative;
+    bottom: -0.18rem;
+    letter-spacing: 1px; */
+}
+input,
+button,
+select,
+textarea {
+  outline: none;
+  border-radius: 0;
+}
+.colorfaa928 {
+  color: #faa928 !important;
+}
+a {
+  display: inline-block;
+  width: auto;
+  height: 100%;
+}
+.colorfaa928 {
+  color: #faa928;
+}
+a {
+  display: inline-block;
+  width: auto;
+  height: 100%;
+}
+.color666 {
+  color: #999999 !important;
+  font-size: 14px;
+}
+.register-center {
+  /* padding-top: 27px; */
+  text-align: center;
+}
+.centinpt {
+  position: relative;
+  width: 320px;
+  text-align: center;
+  margin: auto;
+}
+.register-input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #dddddd;
+  color: #1b1b1b;
+  border-radius: 3px;
+  font-size: 14px;
+  padding-left: 2%;
+  margin-bottom: 38px;
+  box-sizing: border-box;
+}
+.register-text {
+  font-size: 12px;
+  color: #cccccc;
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+}
+.centinpt {
+  position: relative;
+  width: 320px;
+  text-align: center;
+  margin: auto;
+}
+.register-input {
+  width: 90%;
+  height: 38px;
+  border: 1px solid #dddddd;
+  color: #1b1b1b;
+  border-radius: 3px;
+  font-size: 14px;
+  padding-left: 2%;
+  margin-bottom: 38px;
+  box-sizing: border-box;
+}
+.register-text {
+  font-size: 12px;
+  color: #cccccc;
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+}
+.register-tip {
+  color: red;
+  padding-left: 15px;
+}
+.agree {
+  width: 320px;
+  margin: auto;
+  font-size: 14px;
+  padding-top: 20px;
+  text-align: center;
+}
+.zhuce {
+  width: 320px;
+  line-height: 44px;
+  color: #fff;
+  background: #ffc000;
+  border: none;
+  border-radius: 3px;
+  font-size: 18px;
+  margin: auto;
+  margin-top: 36px;
+  cursor: pointer;
+  position: absolute;
+  top: 11rem;
+  left: 0.5rem;
+}
+</style>
